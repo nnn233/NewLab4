@@ -3,19 +3,13 @@ package com.example.newlab4;
 import android.app.Application;
 import android.content.Context;
 
-import androidx.work.WorkManager;
-
 public class LabApplication extends Application {
-    private TaskRepository taskRepository;
-    private SongsRepository songsRepository;
-
-    private SongDatabase database ;
-    private Api api;
-    private static LabApplication application;
+    private WeatherRepository weatherRepository;
 
     public LabApplication() {
 
     }
+
     public static LabApplication getInstance(Context context) {
         return (LabApplication) context.getApplicationContext();
     }
@@ -24,14 +18,11 @@ public class LabApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        database=SongDatabase.getDatabase(this.getApplicationContext());
-        api= NetworkService.getInstance().getJSONApi();
-        taskRepository = new TaskRepository(WorkManager.getInstance(this));
-        songsRepository = new SongsRepository(database.songDao(), api);
-        taskRepository.getSongPeriodically();
+        WeatherDatabase database = WeatherDatabase.getDatabase(this.getApplicationContext());
+        weatherRepository = new WeatherRepository(database.weatherDao());
     }
 
-    public SongsRepository getSongsRepository() {
-        return songsRepository;
+    public WeatherRepository getWeatherRepository() {
+        return weatherRepository;
     }
 }

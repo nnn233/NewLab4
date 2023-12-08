@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
-    SongsAdapter adapter;
+    WeatherAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,21 +25,32 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        adapter = new WeatherAdapter(MainActivity.this);
         setAdapter();
         recyclerView.setAdapter(adapter);
 
         if (!checkInternetConnection())
             Toast.makeText(this, "Доступен только просмотр внесенных ранее записей", Toast.LENGTH_SHORT).show();
-
+        else {
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    WeatherRepository repository = LabApplication.getInstance(MainActivity.this).getWeatherRepository();
+                    repository.getWeather();
+                }
+            };
+            timer.schedule(timerTask, 0, 20000);
+        }
     }
 
     private void setAdapter() {
-        adapter = new SongsAdapter(MainActivity.this);
-        LabApplication app=LabApplication.getInstance(this);
-        SongsRepository repository= app.getSongsRepository();
+        adapter = new WeatherAdapter(MainActivity.this);
+        LabApplication app = LabApplication.getInstance(this);
+        WeatherRepository repository = app.getWeatherRepository();
         repository.getItems().observe(this, items -> {
             if (!items.isEmpty())
-                adapter.setSongs((ArrayList<SongEntity>) items);
+                adapter.setWeatherEntities((ArrayList<WeatherEntity>) items);
         });
     }
 
